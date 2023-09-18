@@ -1,10 +1,11 @@
 const express = require("express");
+      require("dotenv").config();
 const jwt = require('jsonwebtoken');
 const {body, validationResult } = require("express-validator");
 const ipinfo = require("ipinfo");
-
-const accountSid = 'AC53f3d4daacebe1a37fb00fc45c293090';
-const authToken = 'c3a305acec52abb04c07e7996a89c4d1';
+      // KZJZ356NKLN7BKN9TJDZDM2J
+const accountSid = process.env.ACCOUNTSID_VIKASH;
+const authToken = process.env.AUTHTOKEN_VIKASH ;
 
 const client = require('twilio')(accountSid, authToken);
 
