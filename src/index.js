@@ -8,6 +8,7 @@ app.use(express.json());
 
 const connect = require("./configs/db");
 const userController = require("./controllers/user.controller")
+const productController = require("./controllers/product.controller")
 
 app.get("/", (req,res)=>{
      return res.status(200).send("Hello server");
@@ -15,6 +16,8 @@ app.get("/", (req,res)=>{
 })
 
 app.use("/", userController);
+
+app.use("/product", productController);
 
 
 app.listen(5000,  async ()=>{

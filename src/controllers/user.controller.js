@@ -3,6 +3,7 @@ const express = require("express");
 const jwt = require('jsonwebtoken');
 const {body, validationResult } = require("express-validator");
 const ipinfo = require("ipinfo");
+const bcrypt = require("bcrypt");
       // KZJZ356NKLN7BKN9TJDZDM2J
 const accountSid = process.env.ACCOUNTSID_VIKASH;
 const authToken = process.env.AUTHTOKEN_VIKASH ;
@@ -20,6 +21,7 @@ const userSchema = require("../models/user.model")
 
    let OTP ;
    let new_user;
+   let city, region, country;
 
 router.post("/register",
    
@@ -29,8 +31,8 @@ router.post("/register",
             }
             return true;
         }),
-        body("email").isEmail().custom( async (value)=>{
-            // const mail = await users.findOne({email : value});
+        body("email").isEmail().custom( async (val)=>{
+            // const mail = await users.findOne({email : val});
             // if(mail){
             //     throw new Error("emaill already exist");
             // }
@@ -50,13 +52,15 @@ router.post("/register",
         body("ipAddress").trim().not().isEmpty().custom( async (ipAddress)=>{
             ipinfo(ipAddress, (err, cLoc) => {
                 if (err) {
-                  console.error("Error:", err);
+                  console.error("Errorrrr:", err);
                   throw new Error("Invalide ipAddress"); 
                 } else {
-                  console.log("IP Address:", cLoc.ip);
-                  console.log("City:", cLoc.city);
-                  console.log("Region:", cLoc.region);
-                  console.log("Country:", cLoc.country);
+                   if(!cLoc.ip){
+                    throw new Error("Invalide ipAddress"); 
+                   }
+                   city = cLoc.city;
+                   region = cLoc.region ;
+                   country = cLoc.country ;
                   console.log("Location:", cLoc.loc);
                 }
               });
@@ -83,7 +87,12 @@ router.post("/register",
          return res.status(400).json( {message : "useralready registered"} )
         }
 
-         new_user = new userSchema(req.body) ;
+        const userMobile = await userSchema.findOne({ mobile : req.body.mobile });
+        if(userMobile){
+         return res.status(400).json( {message : "useralready registered"} )
+        }  
+
+         new_user = req.body ;
 
          let digits = "0123456789";
          OTP = "";
@@ -97,7 +106,10 @@ router.post("/register",
           to:  "+91"+ req.body.mobile, // Text your number
           from: '+12562864577', // From a valid Twilio number
         })
-        .then((message) => res.status(200).json({"massege" : "OTP send to your mobile number"}));
+        .then((message) =>{
+          OTP = bcrypt.hashSync( OTP , 8 );
+          console.log("ooo", OTP); 
+       return  res.status(200).json({"massege" : "OTP send to your mobile number"}) } );
         
      } catch (error) {
         return res.status(500).json({"err": error?.message});
@@ -108,11 +120,12 @@ router.post("/register",
 router.post("/register/verify", async (req, res)=>{
       try {
          const {otp } = req.body;
-         if(otp != OTP){
+           
+         if(!bcrypt.compareSync( otp, OTP) ){
             return res.status(400).json({"message" : "Incorrect otp"});
          }
 
-          new_user = await new_user.save();
+          new_user = await userSchema.create({...new_user, city, region, country });
           const tocken =  genearteTocken(new_user);
            OTP ="";
           return res.status(200).json({new_user, tocken});
@@ -143,7 +156,10 @@ router.post("/login", async (req, res)=>{
          to:  "+91"+ mobile, // Text your number
          from: '+12562864577', // From a valid Twilio number
        })
-       .then((message) => res.status(200).json({"massege" : "OTP send to your mobile number"}));
+       .then((message) =>{ 
+        OTP = bcrypt.hashSync( OTP , 8 );
+        return  res.status(200).json({"massege" : "OTP send to your mobile number"})
+       });
 
      } catch (error) {
           return res.status(500).json({"msg" : error.message});
@@ -154,7 +170,7 @@ router.post("/login", async (req, res)=>{
 router.post("/login/verify", async (req, res)=>{
   try {
      const {otp } = req.body;
-     if(otp != OTP){
+     if(!bcrypt.compareSync( otp, OTP)){
         return res.status(400).json({"message" : "Incorrect otp"});
      }
 

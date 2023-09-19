@@ -7,6 +7,10 @@ const userSchema =  new mongoose.Schema({
         mobile : { type : String, requred : true, unique : true},
         ipAddress : { type : String, requred : true, unique : true},
         password : { type :  String, requred : true},
+        role : [{type : String, required : true}],
+        city : {type : String},
+        region : {type : String},
+        country : {type : String}
 
      },{
         versionkey : false,
