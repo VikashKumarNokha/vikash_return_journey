@@ -15,6 +15,7 @@ const router = express.Router();
 
 const userSchema = require("../models/user.model")
 
+//   this functionis used for genarating a token
   const genearteTocken = (newuser)=>{
     return jwt.sign({  newuser }, "vikashsecret"  );
    };
@@ -23,6 +24,7 @@ const userSchema = require("../models/user.model")
    let new_user;
    let city, region, country;
 
+  //   this route is used for registration 
 router.post("/register",
    
         body("name").trim().not().isEmpty().custom((val)=>{
@@ -92,6 +94,11 @@ router.post("/register",
          return res.status(400).json( {message : "useralready registered"} )
         }  
 
+        const userIpAddress = await userSchema.findOne({ ipAddress : req.body.ipAddress });
+        if(userIpAddress){
+         return res.status(400).json( {message : "useralready registered"} )
+        }  
+
          new_user = req.body ;
 
          let digits = "0123456789";
@@ -116,7 +123,7 @@ router.post("/register",
      }
 })
 
-
+//   this route is used for registration verification
 router.post("/register/verify", async (req, res)=>{
       try {
          const {otp } = req.body;
@@ -136,6 +143,8 @@ router.post("/register/verify", async (req, res)=>{
 });
 
  let signInuser;
+
+//  this route is used for login
 router.post("/login", async (req, res)=>{
      try {
        const  {mobile} = req.body ;
@@ -166,7 +175,7 @@ router.post("/login", async (req, res)=>{
      }
 })
 
-
+//  this route is used for login verification
 router.post("/login/verify", async (req, res)=>{
   try {
      const {otp } = req.body;

@@ -17,7 +17,7 @@ const userSchema =  new mongoose.Schema({
         timestamps : true
      })
 
-
+      //  here incrypted the password before save in database
      userSchema.pre("save", function(next){
         const hash = bcrypt.hashSync( this.password , 8 );
               this.password = hash ;

@@ -7,7 +7,7 @@ const authenticate = require("../middleware/authenticate")
 
 const authorise = require("../middleware/authorise")
 
-
+// this route is used for posting new product item in database by admin persion other user is not allowed
 router.post("/", authenticate, authorise(["admin"]),  async (req, res)=>{
          
     try{
@@ -20,7 +20,7 @@ router.post("/", authenticate, authorise(["admin"]),  async (req, res)=>{
     }
 }) 
 
-
+//  this route is used for updating the product by admin only
 router.patch("/:id", authenticate, authorise(["admin"]),  async (req, res)=>{
          
  try{
@@ -35,7 +35,7 @@ router.patch("/:id", authenticate, authorise(["admin"]),  async (req, res)=>{
 }) 
 
 
-
+//  this route is used for getting all product by authorized persion 
 router.get("/", authenticate,  async (req, res)=>{
 
     const page = req.query.page ; 

@@ -1,5 +1,5 @@
 
-
+//  thsi function is used as a middleware for authorization for adding new item in database
 
 const authorise = (permitedRole) =>{
       

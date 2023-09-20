@@ -15,7 +15,8 @@ require("dotenv").config()
             });
          } )
  }
-
+ 
+//  this middleware is used for  authentication   check
 const authenticate = async (req, res, next) =>{
 
       if(!req.headers.authorization){
